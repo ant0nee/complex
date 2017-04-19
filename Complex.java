@@ -1,10 +1,91 @@
 import java.util.*;
 import java.io.*; 
 import java.text.*;
+import java.util.regex.*;
 public class Complex{
 
 	private double real;
 	private double imaginary; 
+
+	public static void main(String[] args) {
+
+		ArrayList<Equation> memory = new ArrayList<Equation>(); 
+		String line = "";
+		String[] lines; 
+		while (!line.toUpperCase().equals("QUIT")) {
+			System.out.print("> ");
+			Scanner scanner = new Scanner(System.in);
+			lines = scanner.nextLine().split("=");
+			if (lines.length < 3) {
+
+				line = lines[lines.length - 1];
+
+				for (int i = 0; i < memory.size(); i++) {
+
+					lines[lines.length-1] = lines[lines.length-1].replaceAll(memory.get(i).getVariable(),memory.get(i).getValue().toString());
+
+				}
+
+
+				try {
+
+					if (!line.toUpperCase().equals("QUIT") && !line.toUpperCase().equals("VARIABLES")) {
+
+						line = lines[lines.length - 1];
+
+						if (!lines[0].equals(line)) {
+
+							Pattern p = Pattern.compile("\\s*[A-Za-z]+\\s*");
+							Matcher m = p.matcher(lines[0]);
+							if (m.matches()) {
+								lines[0] = lines[0].replaceAll("\\s","");
+								Equation e = new Equation(lines[0],new Complex(lines[1]));
+								for (int i = 0; i < memory.size(); i++) {
+
+									if (memory.get(i).getVariable().equals(lines[0])) {
+
+										memory.remove(i);
+
+									}
+
+								}
+								memory.add(e);
+							} else {
+
+								System.out.println("Syntax error");
+								continue; 
+
+							}
+
+
+						}
+
+						System.out.println(new Complex(line));
+				
+					} else if (line.toUpperCase().equals("VARIABLES")) {
+
+						System.out.println("Variable, Value");
+						System.out.println("---------------");
+						for (int i = 0; i < memory.size(); i++) {
+							System.out.println(memory.get(i).getVariable()+", "+memory.get(i).getValue());
+						}
+
+					}
+
+				} catch (Exception e) {
+
+					System.out.println("Syntax error");
+
+				}
+
+			} else {
+
+				System.out.println("Syntax error");
+
+			}
+		}
+
+	}
 
 	Complex(double _real, double _imaginary) {
 
@@ -15,7 +96,53 @@ public class Complex{
 
 	Complex(String eval) {
 
-		String[] input = eval.split(" ");
+		String ev = eval.replaceAll("cos","c")
+			.replaceAll("sin","s")
+			.replaceAll("\\t"," ")
+			.replaceAll("^\\s+","")
+			.replaceAll("\\s+$","");
+		ev = ev.replaceAll("^\\([\\+\\-]?[0-9ir]+[ir]?\\)$",ev.replaceAll("[\\(\\)]",""))
+			.replaceAll("^\\s*\\-","0 - ")
+			.replaceAll("^\\s*\\+","");
+		ev = ev.replaceAll("^[0-9ir]+(\\.[0-9]+)?[ir]?$","0 + "+eval);
+		String[] firstInput = ev.split("");
+		ArrayList<String> inputArrayList = new ArrayList<String>();
+		String buffer = "";
+		Pattern p = Pattern.compile("^[0-9ir\\.]$");
+		for (int i = 0; i < firstInput.length; i++) {
+
+			if (p.matcher(firstInput[i]).matches()) {
+
+				buffer += firstInput[i];
+
+			} else if (!firstInput[i].equals(" ")) {
+
+				if (!buffer.equals("")) {
+
+					inputArrayList.add(buffer);
+					buffer = "";
+
+				}
+				
+				inputArrayList.add(firstInput[i]);
+
+			}
+
+		}
+
+		if (!buffer.equals("")) {
+
+			inputArrayList.add(buffer);
+
+		}
+
+		String[] input = new String[inputArrayList.size()];
+
+		for (int i = 0; i < inputArrayList.size(); i++) {
+
+			input[i] = inputArrayList.get(i);
+
+		}
 
 		for (int i = 0; i < input.length; i++) {
 
@@ -279,12 +406,6 @@ public class Complex{
 
 	public Complex pow(Complex arg) {
 
-		return pow(arg, 14);
-
-	}
-
-	public Complex pow(Complex arg, int decimalPlaces) {
-
 		double a = real;
 		double b = imaginary;
 		double c = arg.getReal();
@@ -292,15 +413,21 @@ public class Complex{
 		Complex result = pow((Math.pow(a,2)+Math.pow(b,2)), new Complex(c/2,d/2)).multiply(
 			new Complex(-d,c).multiply(new Complex(new Complex(a,b).arg(),0) ).exp());
 
-		result.setReal(Math.round(result.getReal() * Math.pow(10, decimalPlaces))/Math.pow(10, decimalPlaces));
-		result.setImaginary(Math.round(result.getImaginary() * Math.pow(10, decimalPlaces))/Math.pow(10, decimalPlaces));
 		return new Complex(result.getReal(), result.getImaginary());
 
 	}
 
 	public String toString() {
 
-		return real + (imaginary < 0 ? " - ":" + ") + Math.abs(imaginary) + "i";
+		DecimalFormat df = new DecimalFormat("#.#############################################");
+
+		if (real != 0 && imaginary != 0) {
+			return df.format(real) + (imaginary < 0 ? " - ":" + ") + Math.abs(imaginary) + "i";
+		} else if (imaginary != 0) {
+			return imaginary+"i";
+		} else {
+			return df.format(real);
+		}
 
 	}
 
@@ -399,6 +526,27 @@ public class Complex{
 		}
 		String[] output = new String[out.size()];
 		return out.toArray(output);
+	}
+
+}
+
+class Equation{
+
+	private String variable;
+	private Complex value; 
+	Equation(String _variable, Complex _value) {
+		variable = _variable;
+		value = _value; 
+	}
+	public String getVariable() {
+
+		return variable;
+
+	}
+	public Complex getValue() {
+
+		return value;
+
 	}
 
 }
