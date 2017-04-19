@@ -26,10 +26,9 @@ public class Complex{
 
 				}
 
-
 				try {
 
-					if (!line.toUpperCase().equals("QUIT") && !line.toUpperCase().equals("VARIABLES")) {
+					if (!line.toUpperCase().equals("QUIT") && !line.toUpperCase().equals("VARIABLES") && !line.toUpperCase().equals("HELP")) {
 
 						line = lines[lines.length - 1];
 
@@ -70,11 +69,18 @@ public class Complex{
 							System.out.println(memory.get(i).getVariable()+", "+memory.get(i).getValue());
 						}
 
+					} else if (line.toUpperCase().equals("HELP")) {
+
+						System.out.println("commands:");
+						System.out.println("\tHelp - Show this menu");
+						System.out.println("\tVariables - Show all variables and their values");
+						System.out.println("\tQuit - Exit the program");
+
 					}
 
 				} catch (Exception e) {
 
-					System.out.println("Syntax error");
+					System.out.println("Syntax error");	
 
 				}
 
