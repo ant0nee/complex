@@ -1,6 +1,10 @@
 # complex
 This file is a java class that allows you to do arithmetic with complex numbers. 
 
+# running on command line 
+If you run the application on command line, it will let you type calculations and it will print out the answer. 
+Type "help" to get a list of commands. 
+
 # usable methods 
 Complex add(Complex arg)
 * adds two complex numbers together
@@ -115,3 +119,5 @@ output:
 ```
 -5.2962564457018 + 12.58472633504645i
 ```
+# possible operators
++, -, *, /, ^, c, cos, s and sin
